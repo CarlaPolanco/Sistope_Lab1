@@ -1,16 +1,17 @@
 #include <stdio.h>
 #include <stdlib.h>
+#include <string.h>
 #include <unistd.h>
 #include "funciones.h"
 
-int main(int argc, char const *argv[])
+int main(int argc, char *argv[])
 {
     //Lectura con Getopt
     int validador = 0, cantDis = -1, anchoDis = -1, b = 0;
     char nomVis[100],nomOut[100];
 
 
-    while (validador= getopt(argc,argv,"i:o:n:d:b"))
+    while ((validador = getopt(argc,argv,"i:o:n:d:b")) != -1)
     {
         switch (validador)
         {
@@ -30,6 +31,7 @@ int main(int argc, char const *argv[])
             b = 1;
             break;
         default: 
+            printf("VAlidador %d \n",validador);
             printf("La bandera ingresada no es valida.Termino la ejecucion\n");
             return 1;
             break;
@@ -41,12 +43,12 @@ int main(int argc, char const *argv[])
     printf("cantDis: %d \n",cantDis);
     printf("anchoDis: %d \n",anchoDis);
 
-    if (b = 0)
+    if (b == 1)
     {
-        printf("SI");
+        printf("SI \n");
     }
     else{
-        printf("No");
+        printf("No \n");
     }
     
     

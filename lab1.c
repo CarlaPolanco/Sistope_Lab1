@@ -31,7 +31,6 @@ int main(int argc, char *argv[])
             b = 1;
             break;
         default: 
-            printf("VAlidador %d \n",validador);
             printf("La bandera ingresada no es valida.Termino la ejecucion\n");
             return 1;
             break;

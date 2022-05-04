@@ -22,8 +22,13 @@ int validadorBanderas(int argc,int cantDis,int anchoDis, char nomVis[],char nomO
     FILE * archivo = fopen(nomVis,"r");
     if (archivo==NULL)
     {
-        return 1;
+        return 2;
     }
     fclose(archivo);
+
+    return 0;
+}
+
+int identificadorDiscoVis(int cantDis,int anchoDis, int visibilidad[]){
     return 0;
 }

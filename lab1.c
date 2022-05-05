@@ -8,7 +8,8 @@ int main(int argc, char *argv[])
 {
     /* BLOQUE DE RECOLECCION DE BANDERAS */
 
-    int validador = 0, cantDis = -1, anchoDis = -1, b = 0, valBanderas = 0;
+    int validador = 0, cantDis = -1, b = 0, valBanderas = 0;
+    double anchoDis = -1;
     char nomVis[100],nomOut[100];
 
     // Se guardan las banderas en variables
@@ -26,7 +27,7 @@ int main(int argc, char *argv[])
             sscanf(optarg,"%d",&cantDis);
             break;
         case 'd':
-            sscanf(optarg,"%d",&anchoDis);
+            sscanf(optarg,"%lf",&anchoDis);
             break;
         case 'b':
             b = 1;
@@ -90,8 +91,10 @@ int main(int argc, char *argv[])
 
             char * token = strtok(buffer, ","); // Separa el buffer por comas
 
-            int columna = 0,visDisco = -1; //Columna en donde estoy posicionada, Disco al cual pertenece la visibilidad
+            int columna = 0; //Columna en donde estoy posicionada,
             double visibilidad[5]; // arreglo que almacena la visibilidad
+            double disVis = -1.00; // distancia del centro a la visibilidad
+            int radVis = -1; // Disco al cual pertenece la visibilidad
 
             while( token != NULL ) {
 
@@ -120,12 +123,20 @@ int main(int argc, char *argv[])
                     sscanf(token,"%lf",&visibilidad[4]);
                 }
                 
-                token = strtok(NULL, ","); // DEsplaza el token a la siguiente columna
+                token = strtok(NULL, ","); // Desplaza el token a la siguiente columna
                 columna++;
 
             }// ERROR ESTOY LEYENDO UN VALOR DE MAS SOLUCIONARLO QUE NO SE OLVIDE.
 
-            visDisco = identificadorDiscoVis(cantDis,anchoDis,visibilidad);
+            printf("u: %lf v: %lf \n",visibilidad[0],visibilidad[1]);
+
+            disVis = dCentroVis(visibilidad); // retorna la distancia del centro a la visibilidad
+
+            printf("disVis: %lf \n",disVis);
+
+            radVis = identificadorDiscoVis(cantDis,anchoDis,disVis); // retorna al radio al cual pertenece la visibilidad
+
+            printf("radVis: %lf \n",radVis);
             
         }
         

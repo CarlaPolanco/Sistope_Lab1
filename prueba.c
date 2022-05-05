@@ -1,14 +1,27 @@
 #include <stdio.h>
 #include <stdlib.h>
 
-void imprimoString(char string[]){
-    printf("string: %s \n",string);
+double dCentroVis(double visibilidad[]){ // Funcion que calcula la distancia del centro a la visibilidad
+
+    double distancia = -1 ;
+
+    printf("FUNCION   u: %lf v: %lf \n\n",visibilidad[0],visibilidad[1]);
+
+    distancia = ( (visibilidad[0] * visibilidad[0]) + (visibilidad[1] * visibilidad[1]) ) * 0.5;
+
+    printf("FUNCION   Distancia: %lf \n\n", distancia);
+
+    return distancia;
 }
 
 int main()
 {
-    char string[100] = "Soy un string" ;
-    imprimoString(string);
+    double visibilidad[5] = {2,3,4,5,6};
+    double distancia;
+
+    distancia = dCentroVis(visibilidad);
+
+    printf("%lf \n ",distancia);
     return 0;
 }
 

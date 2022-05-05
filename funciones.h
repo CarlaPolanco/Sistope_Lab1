@@ -3,5 +3,8 @@
 
 int validadorBanderas(int argc,int cantDis,int anchoDis, char nomVis[],char nomOut[]);
 
-int identificadorDiscoVis(int cantDis,int anchoDis, int visibilidad[]);
+int dCentroVis(double visibilidad[]);
+
+int identificadorDiscoVis(int cantDis,double anchoDis, double disDisco);
+
 #endif

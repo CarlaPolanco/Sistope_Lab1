@@ -3,7 +3,7 @@
 
 int validadorBanderas(int argc,int cantDis,int anchoDis, char nomVis[],char nomOut[]);
 
-int dCentroVis(double visibilidad[]);
+float dCentroVis(float visibilidad[]);
 
 int identificadorDiscoVis(int cantDis,double anchoDis, double disDisco);
 

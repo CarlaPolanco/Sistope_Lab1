@@ -1,6 +1,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <math.h>
 
 int validadorBanderas(int argc,int cantDis,int anchoDis, char nomVis[],char nomOut[]){ // Funcion que valida las bandera de posibles datos erroneos
 
@@ -29,11 +30,11 @@ int validadorBanderas(int argc,int cantDis,int anchoDis, char nomVis[],char nomO
     return 0;
 }
 
-double dCentroVis(double visibilidad[]){ // Funcion que calcula la distancia del centro a la visibilidad
+float dCentroVis(float visibilidad[]){ // Funcion que calcula la distancia del centro a la visibilidad
 
-    double distancia = -1 ;
-
-    distancia = ( (visibilidad[0] * visibilidad[0]) + (visibilidad[1] * visibilidad[1]) ) * 0.5;
+    float distancia = -1;
+    
+    distancia = sqrt((visibilidad[0] * visibilidad[0]) + (visibilidad[1] * visibilidad[1]));
 
     return distancia;
 }
@@ -41,36 +42,15 @@ double dCentroVis(double visibilidad[]){ // Funcion que calcula la distancia del
 
 int identificadorDiscoVis(int cantDis,double anchoDis, double disDisco){ // Funcion que calcula a que disco pertenece la visibilidad
 
-    double radiosDiscos[cantDis*2];
-    int j = 1; // j es el multiplicador para ver el ancho de cada uno de los discos
-
-    for (int i = 0; i < cantDis*2; i++) // sirve para saber el rango de cada disco QUIZAS ESTO SE PUEDA OPTIMIZAR PARA AHORRAR RECURSOS DEL COMPUTADOR, YA QUE ESTA OPERACION ES IGUAL PARA TODAS LAS VISIBILIDADES
-    {   
-        if (i == 0) 
-        {
-            radiosDiscos[0] = 0;
-            radiosDiscos[1] = anchoDis * j;
-            j++;
-            i = 2;
-        }
-        else
-        {
-            radiosDiscos[i-1] = 0;
-            radiosDiscos[i] = anchoDis * j;
-            j++;
-        }
-         
-    }
-    
-    
-    for (int i = 0; i < (cantDis*2)-1; i=i+2) // COmpara la distancia en los rangos de los radios
+    for (int i = 1; i < cantDis; i++)
     {
-        if (disDisco >= radiosDiscos[i] && disDisco <= radiosDiscos[i+1])
+        if (disDisco < anchoDis* i)
         {
             return i;
         }
-
+        
     }
+
+    return -1;
     
-    return -3; // significa que no entro en ninguna rango puede ser un error o esta en el ultimo disco inficito
 } 

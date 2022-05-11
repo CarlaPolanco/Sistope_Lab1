@@ -7,4 +7,6 @@ float dCentroVis(float visibilidad[]);
 
 int identificadorDiscoVis(int cantDis,double anchoDis, double disDisco);
 
+int * hijosMios(int cantDiscos);
+
 #endif

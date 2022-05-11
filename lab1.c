@@ -3,6 +3,7 @@
 #include <string.h>
 #include <math.h>
 #include <unistd.h>
+#include <sys/wait.h>
 #include "funciones.h"
 
 int main(int argc, char *argv[])
@@ -90,57 +91,81 @@ int main(int argc, char *argv[])
     }
     else
     {   
-        while (!feof(archivo)) // LECTURA DEL ARCHIVO QUIZAS ESTO SE PUEDA PASAR A UNA FUNCION POR BUENAS PRACTICAS
-        {
-            fgets(buffer,100,archivo); // Lectura del archivo linea por linea, retorna 1 linea guardada en buffer
+        int * pipHijos = hijosMios(cantDis); // Creacion de procesos hijos 
 
-            char * token = strtok(buffer, ","); // Separa el buffer por comas
+        if( pipHijos == NULL){
+        //execl(nasdsdadn) // ./hijos -> recibir y procesar los datos del padre
+        //execl(path_proceso,path_proceso,NULL); -> comando para cambiar el programa principal del hijo
+        printf("mi pib es: %d y el de mi padre es: %d \n",getpid(),getppid());
+        exit(0);
 
-            columna = 0; 
-            disVis = -1;
-            radVis = -1;
+        }else{
+
+            for (int i = 0; i < cantDis; i++) 
+            {
+                waitpid(pipHijos[i], NULL,0); // EL PADRE ESPERA POR CADA UNO DE SUS HIJOS, PARA NO CREAR PROCESOS ZOMBIES
+            }
+
             
-            while( token != NULL ) {
+            while (!feof(archivo)) // LECTURA DEL ARCHIVO QUIZAS ESTO SE PUEDA PASAR A UNA FUNCION POR BUENAS PRACTICAS
+            {
 
-                if (columna == 0) // posicion en eje u
-                {
-                    sscanf(token,"%f",&visibilidad[0]);
-                }
+                fgets(buffer,100,archivo); // Lectura del archivo linea por linea, retorna 1 linea guardada en buffer
 
-                if (columna == 1) // posicion en eje v
-                {
-                    sscanf(token,"%f",&visibilidad[1]);
-                }
+                char * token = strtok(buffer, ","); // Separa el buffer por comas
 
-                if (columna == 2) // valor real de la visibilidad
-                {
-                    sscanf(token,"%f",&visibilidad[2]);
-                }
-
-                if (columna == 3) // valor imaginario de la visibilidad
-                {
-                    sscanf(token,"%f",&visibilidad[3]);
-                }
-
-                if (columna == 4) // ruido de la visibilidad
-                {
-                    sscanf(token,"%f",&visibilidad[4]);
-                }
+                columna = 0; 
+                disVis = -1;
+                radVis = -1;
                 
-                token = strtok(NULL, ","); // Desplaza el token a la siguiente columna
-                columna++;
+                while( token != NULL ) {
 
-            }// ERROR ESTOY LEYENDO UN VALOR DE MAS SOLUCIONARLO QUE NO SE OLVIDE. cambiar double a float
+                    if (columna == 0) // posicion en eje u
+                    {
+                        sscanf(token,"%f",&visibilidad[0]);
+                    }
 
-            disVis = dCentroVis(visibilidad); // retorna la distancia del centro a la visibilidad
+                    if (columna == 1) // posicion en eje v
+                    {
+                        sscanf(token,"%f",&visibilidad[1]);
+                    }
 
-            radVis = identificadorDiscoVis(cantDis,anchoDis,disVis); // retorna al radio al cual pertenece la visibilidad
-            
-            printf("radio: %d ", radVis);
+                    if (columna == 2) // valor real de la visibilidad
+                    {
+                        sscanf(token,"%f",&visibilidad[2]);
+                    }
+
+                    if (columna == 3) // valor imaginario de la visibilidad
+                    {
+                        sscanf(token,"%f",&visibilidad[3]);
+                    }
+
+                    if (columna == 4) // ruido de la visibilidad
+                    {
+                        sscanf(token,"%f",&visibilidad[4]);
+                    }
+                    
+                    token = strtok(NULL, ","); // Desplaza el token a la siguiente columna
+                    columna++;
+
+                }// ERROR ESTOY LEYENDO UN VALOR DE MAS SOLUCIONARLO QUE NO SE OLVIDE. cambiar double a float
+
+                disVis = dCentroVis(visibilidad); // retorna la distancia del centro a la visibilidad
+
+                printf("disVIs; %f ",disVis);
+
+                radVis = identificadorDiscoVis(cantDis,anchoDis,disVis); // retorna al radio al cual pertenece la visibilidad
+                
+                printf("radio: %d \n", radVis); // IMPRIME EL RADIO DE LAS VISIBILIDADES
+
+                // ACA HAY QUE OMPLEMENTAR LAS PIPE
+            }
+
+            fclose(archivo);
         }
+
+        free(pipHijos);     
     }
-    
-    fclose(archivo);
-    
     return 0;
+
 }

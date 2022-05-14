@@ -6,6 +6,9 @@
 #include <sys/wait.h>
 #include "funciones.h"
 
+#define LECTURA 0
+#define ESCRITURA 1
+
 int main(int argc, char *argv[])
 {
     /* BLOQUE DE RECOLECCION DE BANDERAS */
@@ -61,18 +64,25 @@ int main(int argc, char *argv[])
 
     else
     {
-        printf("Las banderas estan correctas");
+        printf("Las banderas estan correctas\n");
     }
 
     // Verifica bandera de impresion por consola
 
     if (b == 1)
     {
-        printf("La bandera SI esta activada \n\n");
+        printf("La bandera SI escritura por pantalla esta activada \n\n");
     }
     else{
-        printf("La bandera NO esta activada \n\n");
+        printf("La bandera de escritura por pantalla NO esta activada \n\n");
     }
+
+    /* BLOQUE DE PIPES */
+
+    int pipefd[2];
+    pipe(pipefd);
+    close(pipefd[LECTURA]);
+    write(STDOUT_FILENO, "MENSAJE DE CONFIRMACION", 24);
 
     /* BLOQUE DE LECTURA */
 
@@ -91,12 +101,26 @@ int main(int argc, char *argv[])
     }
     else
     {   
-        int * pipHijos = hijosMios(cantDis); // Creacion de procesos hijos 
+        int * pipHijos = hijosMios(cantDis); // Creacion de procesos hijos
 
         if( pipHijos == NULL){
+
         //execl(nasdsdadn) // ./hijos -> recibir y procesar los datos del padre
         //execl(path_proceso,path_proceso,NULL); -> comando para cambiar el programa principal del hijo
-        printf("mi pib es: %d y el de mi padre es: %d \n",getpid(),getppid());
+
+        /* PUENTE PIPE */
+
+        /*printf("lectura testeo 1\n");
+        close(pipefd[ESCRITURA]);
+        printf("lectura testeo 2\n");
+        dup2(pipefd[LECTURA],STDOUT_FILENO);
+        printf("lectura testeo 3\n");*/
+
+
+        /* EXECL */
+        execl("./vis","./vis",NULL);
+
+
         exit(0);
 
         }else{

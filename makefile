@@ -1,8 +1,12 @@
-lab1: lab1.o funciones.o
+lab1: lab1.o funciones.o vis.o
 	gcc -o lab1 lab1.c funciones.o -Wall -lm
+	gcc -o vis vis.c -Wall -lm
 
 lab1.o: lab1.c
 	gcc -c lab1.c -Wall
+
+test1.o: vis.c
+	gcc -c vis.c -Wall
 
 funciones.o: funciones.c
 	gcc -c funciones.c -Wall
@@ -11,6 +15,8 @@ funciones.o: funciones.c
 
 clear:
 	rm -rf *.o
+	rm -rf vis
+	rm -rf lab1
 
 run1: 
 	./lab1 -i test100.csv -o salida.out -n 1000 -d 1230 -b

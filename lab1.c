@@ -81,8 +81,6 @@ int main(int argc, char *argv[])
 
     int pipefd[2];
     pipe(pipefd);
-    close(pipefd[LECTURA]);
-    write(STDOUT_FILENO, "MENSAJE DE CONFIRMACION", 24);
 
     /* BLOQUE DE LECTURA */
 
@@ -102,6 +100,15 @@ int main(int argc, char *argv[])
     else
     {   
         int * pipHijos = hijosMios(cantDis); // Creacion de procesos hijos
+
+        /* PRUEBA DEL PADRE PARA WRITE STDOUTFILENO */
+
+        if ( pipHijos != NULL){
+            write(STDOUT_FILENO, "MENSAJE DE CONFIRMACION", 24);
+            close(pipefd[LECTURA]);
+            printf("solo pasa\n");
+
+        }
 
         if( pipHijos == NULL){
 
@@ -183,6 +190,23 @@ int main(int argc, char *argv[])
                 printf("radio: %d \n", radVis); // IMPRIME EL RADIO DE LAS VISIBILIDADES
 
                 // ACA HAY QUE OMPLEMENTAR LAS PIPE
+            }
+
+            /* LISTA DE PRUEBA SALIDA FINAL */
+            // BORRAR UNA VEZ LISTO TODO
+            float lista1[4]={3.0,82.984130,-266.901452,-0.093600};
+            float lista2[4]={-0.079059,11.070505,82.984130,-266.901452};
+            float lista3[4]={0.433206,-0.164955,9.616252,-119.089415};
+            float lista4[4]={-196.833666,0.197163,0.107890,18.713923};
+            float lista5[4]={-196.833666,0.197163,0.107890,18.713923};
+            float * listaPruebaFinal[5]= {lista1,lista2,lista3,lista4,lista5};
+            
+            /* FIN LISTA DE PRUEBA SALIDA FINAL */
+
+            //ESCRITURA ARCHIVO/ ESCRITURA POR PANTALLA
+
+            for (int i = 0; i<cantDis; i++){
+                escribirArchivo(b,listaPruebaFinal[i],i);
             }
 
             fclose(archivo);

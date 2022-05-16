@@ -9,4 +9,8 @@ int identificadorDiscoVis(int cantDis,double anchoDis, double disDisco);
 
 int * hijosMios(int cantDiscos);
 
+float * calculoResultados(float * listaDatos);
+
+void escribirArchivo(int b, float * listaDatos, int numeroDisco);
+
 #endif

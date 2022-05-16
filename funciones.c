@@ -55,7 +55,10 @@ int identificadorDiscoVis(int cantDis,double anchoDis, double disDisco){ // Func
     
 } 
 
-int * hijosMios(int cantDiscos){ // Funcion que retorna un arreglo con los pib de cada hijo.
+//Entrada: cantidad de discos en el archivo leido
+//Salida: lista con los pib de cada hijo
+//Descripcion: funcion que crea los procesos hijos y retorna un arreglo con los pib de cada hijo.
+int * hijosMios(int cantDiscos){
 
     int* pibHijos = (int*)malloc(sizeof(int)*cantDiscos); 
 
@@ -90,4 +93,44 @@ int * hijosMios(int cantDiscos){ // Funcion que retorna un arreglo con los pib d
 
     return pibHijos;
 
+}
+
+//Entrada: lista de todos los datos del disco correspondiente
+//Salida: lista de los 4 datos finales solicitados
+//Descripcion: lee la lista de datos y ejecuta el calculo correspondiente necesario
+float * calculoResultados(float * listaDatos){
+    float* listaRespuesta = (float*)malloc(sizeof(int)*4);
+    float cantidadDatos = listaDatos[0];
+    float sumaReal = 0.0;
+    float sumaImaginaria = 0.0;
+    float potencia = 0.0;
+    float ruido = 0.0;
+    for (int i=0; i<cantidadDatos;i++){
+        sumaReal = sumaReal + listaDatos[3+(5*i)];
+        sumaImaginaria = sumaImaginaria + listaDatos[4+(5*i)];
+        ruido = ruido + listaDatos[5+(5*i)];
+    }
+    potencia = ((sumaReal*sumaReal)+(sumaImaginaria*sumaImaginaria))*((sumaReal*sumaReal)+(sumaImaginaria*sumaImaginaria));
+    float mediaReal = sumaReal/cantidadDatos;
+    float mediaImaginaria = sumaImaginaria/cantidadDatos;
+    //printf("RESULTADOS:\nMedia real: %f\nMedia imaginaria: %f\nPotencia: %f\nRuido total: %f\n",listaRespuesta[0],listaRespuesta[1],listaRespuesta[2],listaRespuesta[3]);
+    listaRespuesta[0]= mediaReal;
+    listaRespuesta[1]= mediaImaginaria;
+    listaRespuesta[2]= potencia;
+    listaRespuesta[3]= ruido;
+    return listaRespuesta;
+}
+
+//Entrada: lista de los datos de cada disco
+//Salida: escritura de archivo correspondiente a datos de cada disco y escritura por pantalla de ser indicada
+//Descripcion: funcion que crea el archivo final a entregar
+void escribirArchivo(int b, float * listaDatos, int numeroDisco){
+    char nombreArchivo[16] = "propiedades.txt";
+    FILE* archivo;
+    archivo=fopen(nombreArchivo,"a");
+    fprintf(archivo, "Disco %d:\nMedia Real: %f\nMedia imaginaria: %f\nPotencia: %f\nRuido total: %f\n",numeroDisco,listaDatos[0],listaDatos[1],listaDatos[2],listaDatos[3]);
+    if (b==1){
+        printf("Disco %d:\nMedia Real: %f\nMedia imaginaria: %f\nPotencia: %f\nRuido total: %f\n",numeroDisco,listaDatos[0],listaDatos[1],listaDatos[2],listaDatos[3]);
+    }
+    fclose(archivo);
 }

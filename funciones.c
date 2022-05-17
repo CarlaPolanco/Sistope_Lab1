@@ -1,10 +1,19 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <unistd.h>
 #include <sys/wait.h>
 #include <math.h>
+#include "funciones.h"
 
-int validadorBanderas(int argc,int cantDis,int anchoDis, char nomVis[],char nomOut[]){ // Funcion que valida las bandera de posibles datos erroneos
+#define LECTURA 0
+#define ESCRITURA 1
+
+//Entrada: LArgo de los parametros ingresados, cantidad de discos, ancho de discos, 
+        // nombre del archivo que contiene visualizaciones,nombre del archivo de salida.
+//Salida: 0 si esta correcto, 1 si existe un error, 2 si el archivo es nulo.
+//Descripcion: Funcion que valida las bandera de posibles datos erroneos.
+int validadorBanderas(int argc,int cantDis,int anchoDis, char nomVis[],char nomOut[]){ 
 
     if (cantDis <= 0)
     {
@@ -31,18 +40,24 @@ int validadorBanderas(int argc,int cantDis,int anchoDis, char nomVis[],char nomO
     return 0;
 }
 
-float dCentroVis(float visibilidad[]){ // Funcion que calcula la distancia del centro a la visibilidad
+//Entrada: Lista con todos los valores pertenecientes a una visibilidad.
+//Salida: FLoat con la distancia del centro a la visibilidad
+//Descripcion: Funcion que calcula la distancia del centro a la visibilidad
+float dCentroVis(float u,float v){ 
 
     float distancia = -1;
     
-    distancia = sqrt((visibilidad[0] * visibilidad[0]) + (visibilidad[1] * visibilidad[1]));
+    distancia = sqrt((u * u) + (v * v));
 
     return distancia;
 }
 
-int identificadorDiscoVis(int cantDis,double anchoDis, double disDisco){ // Funcion que calcula a que disco pertenece la visibilidad
+//Entrada: cantidad de discos, ancho de los discos, distancia de una visibilidad al centro.
+//Salida: Numero entero que simboliza a que disco pertenece.
+//Descripcion: Funcion que calcula a que disco pertenece la visibilidad.
+int identificadorDiscoVis(int cantDis,double anchoDis, double disDisco){ 
 
-    for (int i = 1; i < cantDis; i++)
+    for (int i = 1; i <= cantDis; i++)
     {
         if (disDisco < anchoDis * i)
         {
@@ -58,79 +73,65 @@ int identificadorDiscoVis(int cantDis,double anchoDis, double disDisco){ // Func
 //Entrada: cantidad de discos en el archivo leido
 //Salida: lista con los pib de cada hijo
 //Descripcion: funcion que crea los procesos hijos y retorna un arreglo con los pib de cada hijo.
-int * hijosMios(int cantDiscos){
+hijo * hijosMios(int cantDiscos){
 
-    int* pibHijos = (int*)malloc(sizeof(int)*cantDiscos); 
-
-    for (int i = 0; i < cantDiscos; i++) // llenado del arreglo con ceros para eliminar datos basuras
-    {
-        pibHijos[i] = 0;
-    }
+    hijo * listaHijos = (hijo*)malloc(sizeof(hijo)*cantDiscos);
     
-
     int pib = 1;
-
-    printf("OJO, EL PID DEL PADRE ES= %d\n",getpid());
     
     for (int i = 0; i < cantDiscos; i++) //en cada ciclo quiero crear un hijo
     {   
+
+        pipe(listaHijos[i].pipeHijoPadre);
+        pipe(listaHijos[i].pipePadreHijo);
+
         
         if (pib > 0) //soy el padre
         {
             pib = fork();
 
             if (pib == 0)//soy el clon
-            {    
-                return NULL; // si soy el hijo salgo del ciclo y retorno NULL
+            {   
+                close(listaHijos[i].pipePadreHijo[ESCRITURA]);
+                close(listaHijos[i].pipeHijoPadre[LECTURA]); 
+
+                printf("SOy el hijo %d a punto de dup2 ",i);
+
+                dup2(listaHijos[i].pipePadreHijo[LECTURA],STDIN_FILENO);
+                dup2(listaHijos[i].pipeHijoPadre[ESCRITURA],STDOUT_FILENO);
+
+                free(listaHijos);
+                
+                execl("./vis","./vis",NULL);
+
+                perror("exec ls failed");
+                exit(EXIT_FAILURE);
+                
+                
             }
             else //sigo siendo el padre
             {
-                pibHijos[i] = pib; // GUarda en la lista el pib del hijo
+                listaHijos[i].pib = pib; // GUarda en la lista el pib del hijo
             }
         }
         
     }
 
-    return pibHijos;
+    return listaHijos;
 
 }
 
-//Entrada: lista de todos los datos del disco correspondiente
-//Salida: lista de los 4 datos finales solicitados
-//Descripcion: lee la lista de datos y ejecuta el calculo correspondiente necesario
-float * calculoResultados(float * listaDatos){
-    float* listaRespuesta = (float*)malloc(sizeof(int)*4);
-    float cantidadDatos = listaDatos[0];
-    float sumaReal = 0.0;
-    float sumaImaginaria = 0.0;
-    float potencia = 0.0;
-    float ruido = 0.0;
-    for (int i=0; i<cantidadDatos;i++){
-        sumaReal = sumaReal + listaDatos[3+(5*i)];
-        sumaImaginaria = sumaImaginaria + listaDatos[4+(5*i)];
-        ruido = ruido + listaDatos[5+(5*i)];
-    }
-    potencia = ((sumaReal*sumaReal)+(sumaImaginaria*sumaImaginaria))*((sumaReal*sumaReal)+(sumaImaginaria*sumaImaginaria));
-    float mediaReal = sumaReal/cantidadDatos;
-    float mediaImaginaria = sumaImaginaria/cantidadDatos;
-    //printf("RESULTADOS:\nMedia real: %f\nMedia imaginaria: %f\nPotencia: %f\nRuido total: %f\n",listaRespuesta[0],listaRespuesta[1],listaRespuesta[2],listaRespuesta[3]);
-    listaRespuesta[0]= mediaReal;
-    listaRespuesta[1]= mediaImaginaria;
-    listaRespuesta[2]= potencia;
-    listaRespuesta[3]= ruido;
-    return listaRespuesta;
-}
 
 //Entrada: lista de los datos de cada disco
 //Salida: escritura de archivo correspondiente a datos de cada disco y escritura por pantalla de ser indicada
 //Descripcion: funcion que crea el archivo final a entregar
-void escribirArchivo(int b, float * listaDatos, int numeroDisco){
-    char nombreArchivo[16] = "propiedades.txt";
+void escribirArchivo(float * listaDatos, int numeroDisco,char nomOut[]){
+    
     FILE* archivo;
-    archivo=fopen(nombreArchivo,"a");
-    fprintf(archivo, "Disco %d:\nMedia Real: %f\nMedia imaginaria: %f\nPotencia: %f\nRuido total: %f\n",numeroDisco,listaDatos[0],listaDatos[1],listaDatos[2],listaDatos[3]);
-    if (b==1){
-        printf("Disco %d:\nMedia Real: %f\nMedia imaginaria: %f\nPotencia: %f\nRuido total: %f\n",numeroDisco,listaDatos[0],listaDatos[1],listaDatos[2],listaDatos[3]);
-    }
+    archivo=fopen(nomOut,"a");
+
+    fprintf(archivo, "Disco %d:\nMedia Real: %f\nMedia imaginaria: %f\nPotencia: %f\nRuido total: %f\n",
+                numeroDisco,listaDatos[0],listaDatos[1],listaDatos[2],listaDatos[3]);
+
     fclose(archivo);
 }

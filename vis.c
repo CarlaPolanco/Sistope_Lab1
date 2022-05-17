@@ -12,30 +12,47 @@
 
 int main(int argc, char *argv[])
 {
-	/* LISTA DE PRUEBA*/
 
-	float listaPrueba[16]= {3.0,82.984130,-266.901452,-0.093600,-0.079059,11.070505,82.984130,-266.901452,0.433206,-0.164955,9.616252,-119.089415,-196.833666,0.197163,0.107890,18.713923};
-            
-	/* FIN LISTA PRUEBA*/
+	float numero = -1;
+	float * listaVisibilidad = (float*)malloc(sizeof(float)*5); 
+	// listaVisibilidad = [u,v,real,imaginario,ruido]
 
-	int pipefd[2];
-	char mensaje[100];
-	pipe(pipefd);
+	int bandera = -1;
+	int cantVis = 0;
 
-	// PUENTE PIPE
-	//printf("%d\n", STDOUT_FILENO);
-    //dup2(pipefd[READ],STDOUT_FILENO);
-    //close(pipefd[WRITE]);
+	float sumatoriaReal = 0.0;
+	float sumatoriaImaginaria = 0.0;
+	float sumatoriaRuido = 0.0;
+	float potencia = 0.0;
 
+	read(STDIN_FILENO,&bandera,sizeof(float)); // lee la bandera
 
-	printf("TESTEO mi pib es: %d y el de mi padre es: %d \n",getpid(),getppid());
-	//read(pipefd[READ], mensaje, 100); //lectura de pipe e impresion
-	printf("hijo dice: %s\n", mensaje);
+	while (bandera == 1)
+	{
+		for (int i = 0; i < 5; i++) // guarda los valores
+		{
+			read(STDIN_FILENO,&numero,sizeof(float)); // lee al padre
+			listaVisibilidad[i] = numero ;
+		}
 
-	/* CALCULOS */
+		sumatoriaRuido = sumatoriaRuido + listaVisibilidad[4];
+		sumatoriaImaginaria = sumatoriaImaginaria + listaVisibilidad[3];
+		sumatoriaReal = sumatoriaReal + listaVisibilidad[2];
+		potencia = potencia + dCentroVis(listaVisibilidad[0],listaVisibilidad[1]);
+		cantVis = cantVis + 1;
 
-	float * resultados = calculoResultados(listaPrueba);
-	printf("RESULTADOS:\nMedia real: %f\n,Media imaginaria: %f\nPotencia: %f\nRuido total: %f\n",resultados[0],resultados[1],resultados[2],resultados[3]);
+		read(STDIN_FILENO,&bandera,sizeof(float)); // lee la bandera
+	}
 
-	return 0;
+	sumatoriaReal = sumatoriaReal / cantVis;
+	sumatoriaImaginaria = sumatoriaImaginaria / cantVis;
+	
+	write(STDOUT_FILENO,&sumatoriaReal,sizeof(float)); // Escribe al padre
+	write(STDOUT_FILENO,&sumatoriaImaginaria,sizeof(float)); // Escribe al padre
+	write(STDOUT_FILENO,&potencia,sizeof(float)); // Escribe al padre
+	write(STDOUT_FILENO,&sumatoriaRuido,sizeof(float)); // Escribe al padre
+	
+	free(listaVisibilidad);
+
+	exit(EXIT_SUCCESS);
 }

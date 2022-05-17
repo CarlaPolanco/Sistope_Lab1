@@ -77,10 +77,7 @@ int main(int argc, char *argv[])
         printf("La bandera de escritura por pantalla NO esta activada \n\n");
     }
 
-    /* BLOQUE DE PIPES */
-
-    int pipefd[2];
-    pipe(pipefd);
+    /* BLOQUE DE PIPE */
 
     /* BLOQUE DE LECTURA */
 
@@ -89,6 +86,10 @@ int main(int argc, char *argv[])
     float visibilidad[5]; // arreglo que almacena la visibilidad
     float disVis = -1; // distancia del centro a la visibilidad
     int radVis = -1; // Disco al cual pertenece la visibilidad
+    int bandera = 1; // cuanto termino de hacer la lectura
+    float * listaDatosFinales;
+    float valor = 0.0;
+    int pos = 0;
 
     FILE * archivo = fopen(nomVis,"r");
 
@@ -98,49 +99,20 @@ int main(int argc, char *argv[])
         return 1;
     }
     else
-    {   
-        int * pipHijos = hijosMios(cantDis); // Creacion de procesos hijos
+    {         
+        hijo * hijos = hijosMios(cantDis); // Creacion de procesos hijos 
 
-        /* PRUEBA DEL PADRE PARA WRITE STDOUTFILENO */
+        if( hijos != NULL){ // SOy el padre EL WHILE VA ACA DENTRO_
 
-        if ( pipHijos != NULL){
-            write(STDOUT_FILENO, "MENSAJE DE CONFIRMACION", 24);
-            close(pipefd[LECTURA]);
-            printf("solo pasa\n");
-
-        }
-
-        if( pipHijos == NULL){
-
-        //execl(nasdsdadn) // ./hijos -> recibir y procesar los datos del padre
-        //execl(path_proceso,path_proceso,NULL); -> comando para cambiar el programa principal del hijo
-
-        /* PUENTE PIPE */
-
-        /*printf("lectura testeo 1\n");
-        close(pipefd[ESCRITURA]);
-        printf("lectura testeo 2\n");
-        dup2(pipefd[LECTURA],STDOUT_FILENO);
-        printf("lectura testeo 3\n");*/
-
-
-        /* EXECL */
-        execl("./vis","./vis",NULL);
-
-
-        exit(0);
-
-        }else{
-
-            for (int i = 0; i < cantDis; i++) 
+            for (int i = 0; i < cantDis; i++)
             {
-                waitpid(pipHijos[i], NULL,0); // EL PADRE ESPERA POR CADA UNO DE SUS HIJOS, PARA NO CREAR PROCESOS ZOMBIES
+                close(hijos[i].pipePadreHijo[LECTURA]);
+                close(hijos[i].pipeHijoPadre[ESCRITURA]); 
             }
-
             
-            while (!feof(archivo)) // LECTURA DEL ARCHIVO QUIZAS ESTO SE PUEDA PASAR A UNA FUNCION POR BUENAS PRACTICAS
+            
+            while (archivo != NULL && !feof(archivo))  //LECTURA DEL ARCHIVO QUIZAS ESTO SE PUEDA PASAR A UNA FUNCION POR BUENAS PRACTICAS
             {
-
                 fgets(buffer,100,archivo); // Lectura del archivo linea por linea, retorna 1 linea guardada en buffer
 
                 char * token = strtok(buffer, ","); // Separa el buffer por comas
@@ -148,9 +120,9 @@ int main(int argc, char *argv[])
                 columna = 0; 
                 disVis = -1;
                 radVis = -1;
-                
+            
                 while( token != NULL ) {
-
+                
                     if (columna == 0) // posicion en eje u
                     {
                         sscanf(token,"%f",&visibilidad[0]);
@@ -175,45 +147,64 @@ int main(int argc, char *argv[])
                     {
                         sscanf(token,"%f",&visibilidad[4]);
                     }
-                    
-                    token = strtok(NULL, ","); // Desplaza el token a la siguiente columna
+                
+                    token = strtok(NULL, ",");  //Desplaza el token a la siguiente columna
                     columna++;
 
-                }// ERROR ESTOY LEYENDO UN VALOR DE MAS SOLUCIONARLO QUE NO SE OLVIDE. cambiar double a float
+                }
 
-                disVis = dCentroVis(visibilidad); // retorna la distancia del centro a la visibilidad
+                printf("SALI");
 
-                printf("disVIs; %f ",disVis);
+                disVis = dCentroVis(visibilidad[0],visibilidad[1]); // retorna la distancia del centro a la visibilidad
 
-                radVis = identificadorDiscoVis(cantDis,anchoDis,disVis); // retorna al radio al cual pertenece la visibilidad
-                
-                printf("radio: %d \n", radVis); // IMPRIME EL RADIO DE LAS VISIBILIDADES
+                radVis = identificadorDiscoVis(cantDis,anchoDis,disVis);  //retorna al radio al cual pertenece la visibilidad
 
-                // ACA HAY QUE OMPLEMENTAR LAS PIPE
-            }
+                bandera = 1; // Voy a mandar algo, are you ready?
 
-            /* LISTA DE PRUEBA SALIDA FINAL */
-            // BORRAR UNA VEZ LISTO TODO
-            float lista1[4]={3.0,82.984130,-266.901452,-0.093600};
-            float lista2[4]={-0.079059,11.070505,82.984130,-266.901452};
-            float lista3[4]={0.433206,-0.164955,9.616252,-119.089415};
-            float lista4[4]={-196.833666,0.197163,0.107890,18.713923};
-            float lista5[4]={-196.833666,0.197163,0.107890,18.713923};
-            float * listaPruebaFinal[5]= {lista1,lista2,lista3,lista4,lista5};
-            
-            /* FIN LISTA DE PRUEBA SALIDA FINAL */
+                write(hijos[radVis-1].pipePadreHijo[ESCRITURA],&bandera,sizeof(int));
 
-            //ESCRITURA ARCHIVO/ ESCRITURA POR PANTALLA
-
-            for (int i = 0; i<cantDis; i++){
-                escribirArchivo(b,listaPruebaFinal[i],i);
-            }
+                for (int j = 0; j < 5; j++)
+                {
+                    write(hijos[radVis-1].pipePadreHijo[ESCRITURA],&visibilidad[j],sizeof(float));
+                }
+        
+             }
 
             fclose(archivo);
-        }
 
-        free(pipHijos);     
+            bandera = 0; // Termino de leer el archivo
+
+            for (int i = 0; i < cantDis; i++) // Le aviso a mis hijos
+            {
+                write(hijos[radVis-1].pipePadreHijo[ESCRITURA],&bandera,sizeof(int));
+            }
+
+            listaDatosFinales = (float*)malloc(sizeof(float)*cantDis);
+
+            for (int i = 0; i < cantDis; i++) //LEEE AL HIJO
+            {   
+                for (int j = 0; j < 4; j++)
+                {
+                    read(hijos[i].pipeHijoPadre[LECTURA],&valor,sizeof(float));  
+                    listaDatosFinales[pos] = valor;
+                    pos+=1;
+                }
+
+                //ESCRITURA ARCHIVO/ ESCRITURA POR PANTALLA
+                printf(" ENtrando iteracion = %d ",i);
+                escribirArchivo(listaDatosFinales,i+1,nomOut);
+                printf(" SAliendo iteracion = %d ",i);
+            }
+            for (int i = 0; i < cantDis; i++) 
+            {
+                waitpid(hijos[i].pib, NULL,0); // EL PADRE ESPERA POR CADA UNO DE SUS HIJOS, PARA NO CREAR PROCESOS ZOMBIES
+            }
+
+            free(listaDatosFinales);   
+        }
+        free(hijos);   
     }
+    printf("Termine con exito \n");
     return 0;
 
 }

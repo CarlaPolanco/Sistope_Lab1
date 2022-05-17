@@ -17,7 +17,7 @@ clear:
 	rm -rf *.o
 	rm -rf vis
 	rm -rf lab1
-	rm -rf propiedades.txt
+	rm -rf *.out
 
 run1: 
 	./lab1 -i test100.csv -o salida.out -n 1000 -d 1230 -b
@@ -31,4 +31,4 @@ run2:
 	./lab1 -i hola.txt -o salida.out -n 10 -d 3000
 
 run3:
-	./lab1 -i test100.csv -o salida.out -n 5 -d 150
+	./lab1 -i test100.csv -o salida.out -n 3 -d 200

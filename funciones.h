@@ -5,6 +5,7 @@ typedef struct hijo
 {
     int pipeHijoPadre[2];
     int pipePadreHijo[2];
+    int cantVis;
     int pib;   
 
 }hijo;
@@ -13,7 +14,7 @@ int validadorBanderas(int argc,int cantDis,int anchoDis, char nomVis[],char nomO
 
 float dCentroVis(float u,float v);
 
-int identificadorDiscoVis(int cantDis,double anchoDis, double disDisco);
+int identificadorDiscoVis(int cantDis,float anchoDis, float disDisco);
 
 hijo * hijosMios(int cantDiscos);
 

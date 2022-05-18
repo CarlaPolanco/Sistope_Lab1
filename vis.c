@@ -12,7 +12,6 @@
 
 int main(int argc, char *argv[])
 {
-
 	float numero = -1;
 	float * listaVisibilidad = (float*)malloc(sizeof(float)*5); 
 	// listaVisibilidad = [u,v,real,imaginario,ruido]
@@ -38,7 +37,7 @@ int main(int argc, char *argv[])
 		sumatoriaRuido = sumatoriaRuido + listaVisibilidad[4];
 		sumatoriaImaginaria = sumatoriaImaginaria + listaVisibilidad[3];
 		sumatoriaReal = sumatoriaReal + listaVisibilidad[2];
-		potencia = potencia + dCentroVis(listaVisibilidad[0],listaVisibilidad[1]);
+		potencia = potencia + dCentroVis(listaVisibilidad[2],listaVisibilidad[3]);
 		cantVis = cantVis + 1;
 
 		read(STDIN_FILENO,&bandera,sizeof(float)); // lee la bandera
@@ -46,13 +45,14 @@ int main(int argc, char *argv[])
 
 	sumatoriaReal = sumatoriaReal / cantVis;
 	sumatoriaImaginaria = sumatoriaImaginaria / cantVis;
-	
+
 	write(STDOUT_FILENO,&sumatoriaReal,sizeof(float)); // Escribe al padre
 	write(STDOUT_FILENO,&sumatoriaImaginaria,sizeof(float)); // Escribe al padre
 	write(STDOUT_FILENO,&potencia,sizeof(float)); // Escribe al padre
 	write(STDOUT_FILENO,&sumatoriaRuido,sizeof(float)); // Escribe al padre
+	write(STDOUT_FILENO,&cantVis,sizeof(int)); // Escribe al padre
 	
 	free(listaVisibilidad);
 
-	exit(EXIT_SUCCESS);
+	return 0;
 }

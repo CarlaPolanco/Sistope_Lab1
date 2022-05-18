@@ -3,13 +3,13 @@ lab1: lab1.o funciones.o vis.o
 	gcc -o vis vis.c funciones.o -Wall -lm
 
 lab1.o: lab1.c
-	gcc -c lab1.c -Wall
+	gcc -c lab1.c
 
 funciones.o: funciones.c
-	gcc -c funciones.c -Wall
+	gcc -c funciones.c
 
 vis.o: vis.c
-	gcc -c vis.c -Wall
+	gcc -c vis.c
 
 .PHONY: clean
 
@@ -20,15 +20,5 @@ clear:
 	rm -rf *.out
 
 run1: 
-	./lab1 -i test100.csv -o salida.out -n 1000 -d 1230 -b
-	./lab1 -i hola.txt -o salida.out -n 100 -d 123
-
-run2: 
-	./lab1 -i hola.txt -o  -n 1000 -d 1230 -b
-	./lab1 -i hola.txt -o salida.out -n -100 -d 1230 -b
-	./lab1 -i hola.txt -o salida.out -n 1000 -d -1230
-	./lab1 -i hola.txt -o salida.out -n 1000 -d 
-	./lab1 -i hola.txt -o salida.out -n 10 -d 3000
-
-run3:
-	./lab1 -i test100.csv -o salida.out -n 3 -d 200
+	./lab1 -i test100.csv -o salida100.out -n 2 -d 200 -b
+	./lab1 -i test10000.csv -o salida10000.out -n 4 -d 100 -b

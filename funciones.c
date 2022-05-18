@@ -55,18 +55,18 @@ float dCentroVis(float u,float v){
 //Entrada: cantidad de discos, ancho de los discos, distancia de una visibilidad al centro.
 //Salida: Numero entero que simboliza a que disco pertenece.
 //Descripcion: Funcion que calcula a que disco pertenece la visibilidad.
-int identificadorDiscoVis(int cantDis,double anchoDis, double disDisco){ 
+int identificadorDiscoVis(int cantDis,float anchoDis, float disDisco){ 
 
     for (int i = 1; i <= cantDis; i++)
     {
-        if (disDisco < anchoDis * i)
+        if (disDisco <= anchoDis * i)
         {
             return i;
         }
         
     }
 
-    return -1;
+    return cantDis;
     
 } 
 
@@ -81,7 +81,6 @@ hijo * hijosMios(int cantDiscos){
     
     for (int i = 0; i < cantDiscos; i++) //en cada ciclo quiero crear un hijo
     {   
-
         pipe(listaHijos[i].pipeHijoPadre);
         pipe(listaHijos[i].pipePadreHijo);
 
@@ -95,19 +94,13 @@ hijo * hijosMios(int cantDiscos){
                 close(listaHijos[i].pipePadreHijo[ESCRITURA]);
                 close(listaHijos[i].pipeHijoPadre[LECTURA]); 
 
-                printf("SOy el hijo %d a punto de dup2 ",i);
-
                 dup2(listaHijos[i].pipePadreHijo[LECTURA],STDIN_FILENO);
                 dup2(listaHijos[i].pipeHijoPadre[ESCRITURA],STDOUT_FILENO);
 
                 free(listaHijos);
                 
                 execl("./vis","./vis",NULL);
-
-                perror("exec ls failed");
-                exit(EXIT_FAILURE);
-                
-                
+                return NULL;
             }
             else //sigo siendo el padre
             {
@@ -129,9 +122,12 @@ void escribirArchivo(float * listaDatos, int numeroDisco,char nomOut[]){
     
     FILE* archivo;
     archivo=fopen(nomOut,"a");
-
-    fprintf(archivo, "Disco %d:\nMedia Real: %f\nMedia imaginaria: %f\nPotencia: %f\nRuido total: %f\n",
-                numeroDisco,listaDatos[0],listaDatos[1],listaDatos[2],listaDatos[3]);
-
+    if(numeroDisco == 1){
+        fprintf(archivo, "Disco %d:\nMedia Real: %f\nMedia imaginaria: %f\nPotencia: %f\nRuido total: %f",
+                    numeroDisco,listaDatos[0],listaDatos[1],listaDatos[2],listaDatos[3]);
+    }else{
+        fprintf(archivo, "\nDisco %d:\nMedia Real: %f\nMedia imaginaria: %f\nPotencia: %f\nRuido total: %f",
+                    numeroDisco,listaDatos[0],listaDatos[1],listaDatos[2],listaDatos[3]);
+    }
     fclose(archivo);
 }
